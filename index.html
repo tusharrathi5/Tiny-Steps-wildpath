@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Tiny Steps Wild Path — Coming Soon</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Caveat:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Caveat:wght@500&family=Pacifico&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -43,6 +43,15 @@
     #cursor.big { width: 28px; height: 28px; background: var(--g3); }
     @media (max-width: 768px) { #cursor { display: none; } }
 
+    /* ── MOUNTAINS ── */
+    #mountains-bg {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%; height: 70vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
     /* ── HERO ── */
     #hero {
       position: relative;
@@ -61,14 +70,15 @@
     }
 
     #mainTitle {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(3.8rem, 17vw, 17rem);
-      font-weight: 700;
-      line-height: 0.9;
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(3rem, 14vw, 13rem);
+      font-weight: 400;
+      line-height: 1.0;
       color: var(--dark);
-      letter-spacing: -0.02em;
+      letter-spacing: 0.01em;
+      text-shadow: 2px 4px 12px rgba(45,90,39,0.18);
     }
-    #mainTitle .soon { display: block; font-style: italic; color: var(--g2); }
+    #mainTitle .soon { display: block; font-style: normal; color: var(--g2); }
     #mainTitle .coming { display: block; }
 
     .scroll-hint {
@@ -117,11 +127,14 @@
     }
     .desc {
       font-size: clamp(1rem,2.5vw,1.2rem);
-      font-weight: 300;
+      font-weight: 700;
       line-height: 1.85;
-      color: #3a5a4a;
       font-style: italic;
       margin-bottom: 2.2rem;
+      background: linear-gradient(135deg, #1A3D15 0%, #2D5A27 25%, #4A7C3F 50%, #6B9E5E 75%, #3A6B30 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .notify-form {
@@ -163,7 +176,6 @@
       position: fixed;
       bottom: 0; left: 0;
       width: 100%;
-      /* height set via JS so it's always correct */
       z-index: 8;
       pointer-events: all;
       touch-action: none;
@@ -198,13 +210,77 @@
       line-height: 1;
       will-change: transform,opacity;
     }
+
+    /* ── BUTTERFLY ── */
+    .butterfly {
+      position: fixed;
+      pointer-events: none;
+      z-index: 25;
+      will-change: transform, opacity;
+    }
+    .butterfly svg {
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.15));
+    }
+
+    /* ── SPIDER ── */
+    #spider-wrap {
+      position: fixed;
+      top: 0;
+      pointer-events: none;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #spider-thread {
+      width: 1.5px;
+      background: linear-gradient(to bottom, rgba(180,140,80,0.5), rgba(180,140,80,0.2));
+      transform-origin: top center;
+    }
+    #spider-body {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      animation: spiderWiggle 1.2s ease-in-out infinite;
+    }
+    @keyframes spiderWiggle {
+      0%,100% { transform: rotate(-5deg); }
+      50%     { transform: rotate(5deg); }
+    }
   </style>
 </head>
 <body>
 
 <div id="cursor"></div>
 <div id="wind-overlay"></div>
+
+<!-- MOUNTAINS SVG BACKGROUND -->
+<svg id="mountains-bg" viewBox="0 0 1440 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <!-- farthest mountains - very light -->
+  <polygon points="0,500 120,200 240,320 360,160 480,280 600,120 720,260 840,140 960,270 1080,180 1200,290 1320,170 1440,240 1440,500" fill="rgba(180,210,170,0.28)"/>
+  <!-- far mountains -->
+  <polygon points="0,500 80,260 200,350 320,210 440,310 560,180 680,300 800,190 920,310 1040,220 1160,330 1280,210 1440,280 1440,500" fill="rgba(140,185,125,0.35)"/>
+  <!-- mid mountains -->
+  <polygon points="0,500 0,380 100,290 220,370 340,250 460,350 580,230 700,340 820,240 940,350 1060,260 1180,360 1300,270 1440,320 1440,500" fill="rgba(100,155,90,0.42)"/>
+  <!-- near mountains darker -->
+  <polygon points="0,500 0,420 140,320 280,410 400,300 540,400 660,310 780,400 900,300 1040,400 1160,310 1300,390 1440,330 1440,500" fill="rgba(65,115,55,0.48)"/>
+  <!-- closest foothills -->
+  <polygon points="0,500 0,460 180,380 340,450 480,370 620,455 760,380 900,460 1060,385 1220,460 1380,390 1440,430 1440,500" fill="rgba(42,85,36,0.38)"/>
+  <!-- snow caps far left peak -->
+  <polygon points="360,160 340,185 380,185" fill="rgba(255,255,255,0.55)"/>
+  <!-- snow caps center peak -->
+  <polygon points="600,120 578,152 622,152" fill="rgba(255,255,255,0.60)"/>
+  <!-- snow caps right peak -->
+  <polygon points="840,140 820,168 862,168" fill="rgba(255,255,255,0.55)"/>
+</svg>
+
 <canvas id="bush-canvas"></canvas>
+
+<!-- SPIDER -->
+<div id="spider-wrap">
+  <div id="spider-thread"></div>
+  <div id="spider-body">🕷️</div>
+</div>
 
 <section id="hero">
   <div class="hero-wrap">
@@ -228,7 +304,7 @@
       <input type="email" placeholder="your@email.com" />
       <button>Notify Me</button>
     </div>
-    <p class="footer-note">Built with love & tiny footsteps ✨</p>
+    <p class="footer-note">Built with love &amp; tiny footsteps ✨</p>
   </div>
 </section>
 
@@ -260,13 +336,10 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 /* ══════════════════════════════════════
-   CANVAS — height computed in JS to
-   avoid the offsetHeight=0 race on load
+   CANVAS — bushes
 ══════════════════════════════════════ */
 const canvas = document.getElementById('bush-canvas');
 const ctx    = canvas.getContext('2d');
-
-const CANVAS_VH = window.innerWidth < 768 ? 0.36 : 0.50;
 
 function setCanvasSize() {
   const W = window.innerWidth;
@@ -277,18 +350,12 @@ function setCanvasSize() {
   return { W, H };
 }
 
-/* ══════════════════════════════════════
-   GREEN PALETTE
-══════════════════════════════════════ */
 const GP = [
   '#C9E3C1','#B8D9AF','#A5CE97','#8FBF82',
   '#7DB370','#6B9E5E','#5B8F50','#4A7C3F',
   '#3A6B30','#2D5A27','#1F4A1E','#1A3D15'
 ];
 
-/* ══════════════════════════════════════
-   BUSH CONFIGS  (6 bushes, back→front)
-══════════════════════════════════════ */
 const BCFG = [
   { xR:0.04, spreadH:0.50, n:48 },
   { xR:0.22, spreadH:0.62, n:60 },
@@ -303,19 +370,17 @@ let bushes = [];
 function buildBushes(W, H) {
   const mob = window.innerWidth < 768;
   bushes = BCFG.map((cfg, i) => {
-    const depth      = (i + 1) / BCFG.length;          // 0..1  (0=back, 1=front)
+    const depth      = (i + 1) / BCFG.length;
     const sizeScale  = 0.30 + depth * 0.70;
     const maxLen     = H * cfg.spreadH * sizeScale * (mob ? 0.82 : 1);
     const cx         = W * cfg.xR;
-    const cy         = H;                               // root at bottom of canvas
+    const cy         = H;
     const n          = mob ? Math.floor(cfg.n * 0.72) : cfg.n;
-
     const ci   = Math.floor((1 - depth) * (GP.length - 3));
     const c0   = GP[ci], c1 = GP[ci+1], c2 = GP[ci+2];
-
     const branches = Array.from({ length: n }, (_, b) => {
       const frac = b / (n - 1);
-      const base = Math.PI + frac * Math.PI;            // π→2π upper semicircle
+      const base = Math.PI + frac * Math.PI;
       const jit  = (Math.random() - 0.5) * 0.24;
       const len  = maxLen * (0.40 + Math.random() * 0.60);
       const r    = Math.random();
@@ -331,7 +396,6 @@ function buildBushes(W, H) {
         hBend     : 0,
       };
     });
-
     return { cx, cy, depth, sizeScale, branches, cWave: 0 };
   });
 }
@@ -377,7 +441,7 @@ function windStreaks(str) {
 }
 
 /* ══════════════════════════════════════
-   LEAVES  — all green
+   LEAVES — all green
 ══════════════════════════════════════ */
 const GLYPHS = ['🍃','🌿','🍀','🌱'];
 
@@ -390,18 +454,16 @@ function spawnLeaves(ox, oy, count) {
       const h = Math.floor(Math.random() * 30 - 10);
       el.style.filter   = `hue-rotate(${h}deg) saturate(1.4) brightness(.9)`;
       el.style.fontSize = (9 + Math.random() * 13) + 'px';
-      let px = ox + (Math.random() - .5) * 70;
-      let py = oy + (Math.random() - .5) * 50;
+      let px = ox + (Math.random() - 0.5) * 70;
+      let py = oy + (Math.random() - 0.5) * 50;
       el.style.left = px + 'px';
       el.style.top  = py + 'px';
       document.body.appendChild(el);
-
       let vx = 2.5 + Math.random() * 7.5;
       let vy = -(1.5 + Math.random() * 4.5);
       let angle = Math.random() * 360;
-      const spin = (Math.random() - .5) * 9;
+      const spin = (Math.random() - 0.5) * 9;
       let alpha = 1;
-
       const step = () => {
         vx *= .984; vy += .10;
         px += vx; py += vy; angle += spin; alpha -= .011;
@@ -426,7 +488,6 @@ function onMove(cx, cy) {
   const lx = cx - rect.left;
   const ly = cy - rect.top;
   let anyH = false;
-
   bushes.forEach(bush => {
     bush.branches.forEach(br => {
       const ex  = bush.cx + Math.cos(br.angle) * br.len;
@@ -435,7 +496,6 @@ function onMove(cx, cy) {
       const mpy = (bush.cy + ey) / 2;
       const d   = Math.hypot(lx - mpx, ly - mpy);
       const inf = Math.max(0, 1 - d / 90);
-
       if (inf > 0.05) {
         const pd = Math.atan2(mpy - ly, mpx - lx);
         const tg = inf * 0.65 * Math.sign(Math.cos(pd - br.baseAngle));
@@ -446,7 +506,6 @@ function onMove(cx, cy) {
       }
     });
   });
-
   anyH ? curEl.classList.add('big') : curEl.classList.remove('big');
 }
 
@@ -456,13 +515,11 @@ canvas.addEventListener('touchmove', e => {
   onMove(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: false });
 
-/* ── CLICK / TAP ANYWHERE ── */
 function onClick(cx, cy) {
   triggerWind(.80 + Math.random() * .35);
   spawnLeaves(cx, cy, 30);
   bushes.forEach(b => { b.cWave = 1; });
 }
-
 document.addEventListener('click', e => {
   if (['BUTTON','INPUT'].includes(e.target.tagName)) return;
   onClick(e.clientX, e.clientY);
@@ -474,7 +531,7 @@ document.addEventListener('touchend', e => {
 }, { passive: true });
 
 /* ══════════════════════════════════════
-   RENDER LOOP
+   RENDER LOOP — bushes
 ══════════════════════════════════════ */
 let tick = 0;
 
@@ -482,25 +539,18 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   wStr += (wTgt - wStr) * 0.038;
   tick += 0.013;
-
-  // sort back → front by depth
   const sorted = [...bushes].sort((a, b) => a.depth - b.depth);
-
   sorted.forEach(bush => {
     if (bush.cWave > 0) bush.cWave *= 0.91;
     const baseA     = 0.45 + bush.depth * 0.55;
     const totalWind = wStr + bush.cWave * 0.92;
-
     ctx.save();
     bush.branches.forEach(br => {
       const sway  = Math.sin(tick * br.speed + br.phase) * 0.048;
       const wBend = totalWind * br.wFactor * 0.40;
       br.angle    = br.baseAngle + sway + wBend + br.hBend;
-
       const ex = bush.cx + Math.cos(br.angle) * br.len;
       const ey = bush.cy + Math.sin(br.angle) * br.len;
-
-      // stem
       ctx.beginPath();
       ctx.moveTo(bush.cx, bush.cy);
       ctx.lineTo(ex, ey);
@@ -508,8 +558,6 @@ function draw() {
       ctx.lineWidth   = 0.5 + bush.depth * 1.0;
       ctx.globalAlpha = baseA * 0.80;
       ctx.stroke();
-
-      // tip dot
       ctx.beginPath();
       ctx.arc(ex, ey, br.tipR, 0, Math.PI * 2);
       ctx.fillStyle   = br.color;
@@ -518,7 +566,6 @@ function draw() {
     });
     ctx.restore();
   });
-
   requestAnimationFrame(draw);
 }
 draw();
@@ -531,19 +578,17 @@ function ambientLeaf() {
   el.className   = 'lp';
   el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
   const h = Math.floor(Math.random() * 28 - 8);
-  el.style.filter   = `hue-rotate(${h}deg) saturate(1.25)`;
+  el.style.filter   = `hue-rotate(${h}deg) saturate(1.25) brightness(.9)`;
   el.style.fontSize = (7 + Math.random() * 10) + 'px';
   let px = -30;
   let py = window.innerHeight * .2 + Math.random() * window.innerHeight * .6;
   el.style.left = px+'px'; el.style.top = py+'px'; el.style.opacity = '0';
   document.body.appendChild(el);
-
   const vx = 1.1 + Math.random() * 1.9;
-  const vy = -.2  + Math.random() * .45;
+  const vy = -.2  + Math.random() * 0.45;
   const wf = .018 + Math.random() * .02;
   const sp = (Math.random() - .5) * 2.5;
   let phase = 0, angle = 0, alpha = 0;
-
   const go = () => {
     phase += wf; px += vx; py += vy + Math.sin(phase) * .4; angle += sp;
     if (px < 180)                      alpha = Math.min(alpha + .025, .75);
@@ -563,6 +608,162 @@ setInterval(ambientLeaf, 2300);
 setInterval(() => {
   if (Math.random() < 0.28) triggerWind(.18 + Math.random() * .32);
 }, 5800);
+
+/* ══════════════════════════════════════
+   BUTTERFLIES — always flying
+══════════════════════════════════════ */
+const BUTTERFLY_COLORS = [
+  ['#e8a0bf','#f7d4e8','#c06090'],
+  ['#f5c842','#ffe98a','#c89a10'],
+  ['#82d9f7','#c8f0ff','#3aaddb'],
+  ['#a8e06e','#d4f5a8','#5aad28'],
+  ['#ffa07a','#ffd4b8','#cc6030'],
+];
+
+function makeButterflyEl(colorSet) {
+  const [main, light, dark] = colorSet;
+  const el = document.createElement('div');
+  el.className = 'butterfly';
+  el.innerHTML = `
+    <svg width="38" height="28" viewBox="0 0 38 28" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="9" cy="10" rx="9" ry="7" fill="${main}" opacity="0.88"/>
+      <ellipse cx="9" cy="20" rx="6" ry="4.5" fill="${dark}" opacity="0.75"/>
+      <ellipse cx="29" cy="10" rx="9" ry="7" fill="${main}" opacity="0.88"/>
+      <ellipse cx="29" cy="20" rx="6" ry="4.5" fill="${dark}" opacity="0.75"/>
+      <ellipse cx="9" cy="9" rx="4" ry="3" fill="${light}" opacity="0.55"/>
+      <ellipse cx="29" cy="9" rx="4" ry="3" fill="${light}" opacity="0.55"/>
+      <line x1="19" y1="3" x2="19" y2="25" stroke="${dark}" stroke-width="1.2"/>
+      <path d="M19,3 Q22,0 24,2" stroke="${dark}" stroke-width="1" fill="none"/>
+      <path d="M19,3 Q16,0 14,2" stroke="${dark}" stroke-width="1" fill="none"/>
+    </svg>`;
+  return el;
+}
+
+function spawnButterfly() {
+  const colorSet = BUTTERFLY_COLORS[Math.floor(Math.random() * BUTTERFLY_COLORS.length)];
+  const el = makeButterflyEl(colorSet);
+  document.body.appendChild(el);
+
+  const startRight = Math.random() < 0.5;
+  let px = startRight ? window.innerWidth + 30 : -60;
+  let py = window.innerHeight * 0.05 + Math.random() * window.innerHeight * 0.75;
+  const vxBase = (1.2 + Math.random() * 2.0) * (startRight ? -1 : 1);
+  const vyBase = (Math.random() - 0.5) * 0.8;
+  const waveAmp = 18 + Math.random() * 28;
+  const waveFreq = 0.018 + Math.random() * 0.022;
+  const flapFreq = 0.12 + Math.random() * 0.10;
+  const scaleBase = 0.7 + Math.random() * 0.6;
+  let phase = Math.random() * Math.PI * 2;
+  let flapPhase = Math.random() * Math.PI * 2;
+  let alpha = 0;
+
+  el.style.left = px + 'px';
+  el.style.top  = py + 'px';
+
+  const flutter = () => {
+    phase     += waveFreq;
+    flapPhase += flapFreq;
+    px += vxBase;
+    py += vyBase + Math.sin(phase) * 0.9;
+
+    // fade in near edges
+    const fadeZone = 80;
+    if (startRight) {
+      alpha = Math.min(alpha + 0.03, 1);
+      if (px < fadeZone) alpha = Math.max(alpha - 0.04, 0);
+    } else {
+      alpha = Math.min(alpha + 0.03, 1);
+      if (px > window.innerWidth - fadeZone) alpha = Math.max(alpha - 0.04, 0);
+    }
+
+    // wing flap via scaleX oscillation
+    const flapScale = 0.35 + 0.65 * Math.abs(Math.sin(flapPhase));
+    const flipX = startRight ? -1 : 1;
+
+    el.style.left      = px + 'px';
+    el.style.top       = (py + Math.sin(phase) * waveAmp) + 'px';
+    el.style.opacity   = alpha;
+    el.style.transform = `scaleX(${flipX * flapScale}) scaleY(${scaleBase})`;
+
+    const offscreen = startRight ? px < -80 : px > window.innerWidth + 80;
+    if (offscreen) { el.remove(); return; }
+    requestAnimationFrame(flutter);
+  };
+  requestAnimationFrame(flutter);
+}
+
+// Spawn butterflies continuously — always some on screen
+function scheduleButterfly() {
+  spawnButterfly();
+  setTimeout(scheduleButterfly, 1800 + Math.random() * 2200);
+}
+// Seed initial butterflies
+for (let i = 0; i < 4; i++) {
+  setTimeout(spawnButterfly, i * 600);
+}
+scheduleButterfly();
+
+/* ══════════════════════════════════════
+   SPIDER — scrolls from top on web,
+   disappears randomly
+══════════════════════════════════════ */
+const spiderWrap  = document.getElementById('spider-wrap');
+const spiderThread = document.getElementById('spider-thread');
+
+function runSpider() {
+  // Random horizontal position
+  const xPos = 80 + Math.random() * (window.innerWidth - 160);
+  spiderWrap.style.left = xPos + 'px';
+  spiderWrap.style.opacity = '1';
+
+  // Spider descends from 0 to a random depth (20-70vh)
+  const targetH = window.innerHeight * (0.18 + Math.random() * 0.52);
+  let threadH = 0;
+  let descending = true;
+  const speed = 1.2 + Math.random() * 1.4;
+
+  // Swing animation
+  let swingAngle = 0;
+  let swingDir   = 1;
+
+  const step = () => {
+    if (descending) {
+      threadH += speed;
+      swingAngle += swingDir * 0.015;
+      if (Math.abs(swingAngle) > 0.18) swingDir *= -1;
+
+      spiderThread.style.height  = threadH + 'px';
+      spiderWrap.style.transform = `rotate(${swingAngle}rad)`;
+
+      if (threadH >= targetH) {
+        descending = false;
+        // Pause at bottom, then disappear randomly
+        const pauseTime = 800 + Math.random() * 2400;
+        setTimeout(() => {
+          // quick retract upwards
+          let retractH = threadH;
+          const retract = () => {
+            retractH -= speed * 2.2;
+            spiderThread.style.height = Math.max(0, retractH) + 'px';
+            if (retractH > 0) requestAnimationFrame(retract);
+            else {
+              spiderWrap.style.opacity = '0';
+              // Respawn after a random delay
+              setTimeout(runSpider, 4000 + Math.random() * 8000);
+            }
+          };
+          requestAnimationFrame(retract);
+        }, pauseTime);
+        return;
+      }
+    }
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// Start spider after a short delay
+setTimeout(runSpider, 2500);
 </script>
 </body>
 </html>
