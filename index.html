@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tiny Steps Wild Path — Coming Soon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Caveat:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --dark: #1F3D2B;
+      --gold: #C9A96E;
+      --g1: #1A3D15;
+      --g2: #2D5A27;
+      --g3: #4A7C3F;
+      --g4: #6B9E5E;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: linear-gradient(160deg, #F8F3EA 0%, #EDE5D8 55%, #E4DDD0 100%);
+      color: var(--dark);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    @media (max-width: 768px) { body { cursor: auto; } }
+
+    /* ── CURSOR ── */
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--g4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .15s, height .15s, background .2s;
+      mix-blend-mode: multiply;
+    }
+    #cursor.big { width: 28px; height: 28px; background: var(--g3); }
+    @media (max-width: 768px) { #cursor { display: none; } }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-wrap {
+      text-align: center;
+      pointer-events: none;
+      padding: 0 16px;
+      z-index: 10;
+    }
+
+    #mainTitle {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.8rem, 17vw, 17rem);
+      font-weight: 700;
+      line-height: 0.9;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+    }
+    #mainTitle .soon { display: block; font-style: italic; color: var(--g2); }
+    #mainTitle .coming { display: block; }
+
+    .scroll-hint {
+      margin-top: 1.4rem;
+      font-family: 'Caveat', cursive;
+      font-size: clamp(.85rem, 2.5vw, 1.2rem);
+      color: var(--g3);
+      letter-spacing: .1em;
+      opacity: .7;
+      animation: bob 2s ease-in-out infinite;
+    }
+    @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(7px)} }
+
+    /* ── CONTENT ── */
+    #content {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(50px,8vw,90px) 24px clamp(140px,22vw,240px);
+      z-index: 5;
+      position: relative;
+    }
+
+    .content-inner {
+      max-width: 620px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .content-inner.visible { opacity: 1; transform: translateY(0); }
+
+    .site-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.7rem,5vw,3.2rem);
+      font-weight: 400;
+      margin-bottom: .4rem;
+    }
+    .tagline {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1.1rem,3vw,1.55rem);
+      color: var(--gold);
+      margin-bottom: 1.8rem;
+    }
+    .desc {
+      font-size: clamp(1rem,2.5vw,1.2rem);
+      font-weight: 300;
+      line-height: 1.85;
+      color: #3a5a4a;
+      font-style: italic;
+      margin-bottom: 2.2rem;
+    }
+
+    .notify-form {
+      display: flex;
+      max-width: 400px;
+      margin: 0 auto 1.8rem;
+      border: 1.5px solid var(--g2);
+      border-radius: 40px;
+      overflow: hidden;
+    }
+    .notify-form input {
+      flex: 1; min-width: 0;
+      padding: 13px 18px;
+      border: none;
+      background: rgba(255,255,255,.65);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--dark);
+      outline: none;
+    }
+    .notify-form button {
+      padding: 13px 22px;
+      border: none;
+      background: var(--g2);
+      color: #fff;
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      cursor: pointer;
+      letter-spacing: .05em;
+      transition: background .3s;
+      white-space: nowrap;
+    }
+    .notify-form button:hover { background: var(--g1); }
+
+    .footer-note { font-size: .82rem; opacity: .45; letter-spacing: .05em; }
+
+    /* ── CANVAS ── */
+    #bush-canvas {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      /* height set via JS so it's always correct */
+      z-index: 8;
+      pointer-events: all;
+      touch-action: none;
+    }
+
+    /* ── WIND STREAKS ── */
+    #wind-overlay {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 7;
+      overflow: hidden;
+    }
+    .ws {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(74,124,63,.22), transparent);
+      border-radius: 2px;
+      opacity: 0;
+      animation: wsa var(--d,.9s) ease-out forwards;
+    }
+    @keyframes wsa {
+      0%   { transform:translateX(-300px); opacity:0; width:80px; }
+      35%  { opacity:1; }
+      100% { transform:translateX(115vw);  opacity:0; width:260px; }
+    }
+
+    /* ── LEAF PARTICLES ── */
+    .lp {
+      position: fixed;
+      pointer-events: none;
+      z-index: 20;
+      line-height: 1;
+      will-change: transform,opacity;
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="wind-overlay"></div>
+<canvas id="bush-canvas"></canvas>
+
+<section id="hero">
+  <div class="hero-wrap">
+    <div id="mainTitle">
+      <span class="coming">Coming</span>
+      <span class="soon">Soon</span>
+    </div>
+    <div class="scroll-hint">↓ scroll to explore ↓</div>
+  </div>
+</section>
+
+<section id="content">
+  <div class="content-inner" id="contentInner">
+    <div class="site-name">Tiny Steps Wild Path</div>
+    <div class="tagline">Little feet, big adventures 🌿</div>
+    <p class="desc">
+      A journey of motherhood, mountains, and mindful parenting.<br>
+      Stories from a mom of two — exploring the wild<br>while raising kind, curious souls.
+    </p>
+    <div class="notify-form">
+      <input type="email" placeholder="your@email.com" />
+      <button>Notify Me</button>
+    </div>
+    <p class="footer-note">Built with love & tiny footsteps ✨</p>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════════
+   CURSOR
+══════════════════════════════════════ */
+const curEl = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  curEl.style.left = e.clientX + 'px';
+  curEl.style.top  = e.clientY + 'px';
+});
+
+/* ══════════════════════════════════════
+   SCROLL — shrink title, reveal content
+══════════════════════════════════════ */
+const titleEl   = document.getElementById('mainTitle');
+const contentEl = document.getElementById('contentInner');
+const heroEl    = document.getElementById('hero');
+
+window.addEventListener('scroll', () => {
+  const p   = Math.min(window.scrollY / heroEl.offsetHeight, 1);
+  const mob = window.innerWidth < 768;
+  const s   = window.innerWidth * (mob ? 0.13 : 0.17);
+  const e   = Math.max(window.innerWidth * 0.04, mob ? 26 : 34);
+  titleEl.style.fontSize = (s - (s - e) * p) + 'px';
+  titleEl.style.opacity  = 1 - p * 0.22;
+  if (window.scrollY > heroEl.offsetHeight * 0.3) contentEl.classList.add('visible');
+}, { passive: true });
+
+/* ══════════════════════════════════════
+   CANVAS — height computed in JS to
+   avoid the offsetHeight=0 race on load
+══════════════════════════════════════ */
+const canvas = document.getElementById('bush-canvas');
+const ctx    = canvas.getContext('2d');
+
+const CANVAS_VH = window.innerWidth < 768 ? 0.36 : 0.50;
+
+function setCanvasSize() {
+  const W = window.innerWidth;
+  const H = Math.round(window.innerHeight * (window.innerWidth < 768 ? 0.36 : 0.50));
+  canvas.style.height = H + 'px';
+  canvas.width  = W;
+  canvas.height = H;
+  return { W, H };
+}
+
+/* ══════════════════════════════════════
+   GREEN PALETTE
+══════════════════════════════════════ */
+const GP = [
+  '#C9E3C1','#B8D9AF','#A5CE97','#8FBF82',
+  '#7DB370','#6B9E5E','#5B8F50','#4A7C3F',
+  '#3A6B30','#2D5A27','#1F4A1E','#1A3D15'
+];
+
+/* ══════════════════════════════════════
+   BUSH CONFIGS  (6 bushes, back→front)
+══════════════════════════════════════ */
+const BCFG = [
+  { xR:0.04, spreadH:0.50, n:48 },
+  { xR:0.22, spreadH:0.62, n:60 },
+  { xR:0.82, spreadH:0.58, n:58 },
+  { xR:0.60, spreadH:0.74, n:72 },
+  { xR:0.40, spreadH:0.80, n:76 },
+  { xR:0.91, spreadH:0.67, n:65 },
+];
+
+let bushes = [];
+
+function buildBushes(W, H) {
+  const mob = window.innerWidth < 768;
+  bushes = BCFG.map((cfg, i) => {
+    const depth      = (i + 1) / BCFG.length;          // 0..1  (0=back, 1=front)
+    const sizeScale  = 0.30 + depth * 0.70;
+    const maxLen     = H * cfg.spreadH * sizeScale * (mob ? 0.82 : 1);
+    const cx         = W * cfg.xR;
+    const cy         = H;                               // root at bottom of canvas
+    const n          = mob ? Math.floor(cfg.n * 0.72) : cfg.n;
+
+    const ci   = Math.floor((1 - depth) * (GP.length - 3));
+    const c0   = GP[ci], c1 = GP[ci+1], c2 = GP[ci+2];
+
+    const branches = Array.from({ length: n }, (_, b) => {
+      const frac = b / (n - 1);
+      const base = Math.PI + frac * Math.PI;            // π→2π upper semicircle
+      const jit  = (Math.random() - 0.5) * 0.24;
+      const len  = maxLen * (0.40 + Math.random() * 0.60);
+      const r    = Math.random();
+      return {
+        baseAngle : base + jit,
+        angle     : base + jit,
+        len,
+        tipR      : (1.4 + Math.random() * 2.4) * sizeScale,
+        phase     : Math.random() * Math.PI * 2,
+        speed     : 0.30 + Math.random() * 0.60,
+        wFactor   : 0.35 + Math.random() * 0.65,
+        color     : r < 0.38 ? c0 : r < 0.72 ? c1 : c2,
+        hBend     : 0,
+      };
+    });
+
+    return { cx, cy, depth, sizeScale, branches, cWave: 0 };
+  });
+}
+
+function init() {
+  const { W, H } = setCanvasSize();
+  buildBushes(W, H);
+}
+init();
+
+window.addEventListener('resize', () => {
+  const { W, H } = setCanvasSize();
+  buildBushes(W, H);
+});
+
+/* ══════════════════════════════════════
+   WIND
+══════════════════════════════════════ */
+let wStr = 0, wTgt = 0, wTimer = null;
+
+function triggerWind(str) {
+  wTgt = str;
+  windStreaks(str);
+  clearTimeout(wTimer);
+  wTimer = setTimeout(() => { wTgt = 0; }, 2500);
+}
+
+function windStreaks(str) {
+  const ov    = document.getElementById('wind-overlay');
+  const count = Math.floor(10 + str * 18);
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'ws';
+      el.style.setProperty('--d', (.48 + Math.random() * .55) + 's');
+      el.style.top          = (4 + Math.random() * 90) + 'vh';
+      el.style.left         = '-300px';
+      el.style.animationDelay = (Math.random() * .48) + 's';
+      ov.appendChild(el);
+      setTimeout(() => el.remove(), 1700);
+    }, i * 52);
+  }
+}
+
+/* ══════════════════════════════════════
+   LEAVES  — all green
+══════════════════════════════════════ */
+const GLYPHS = ['🍃','🌿','🍀','🌱'];
+
+function spawnLeaves(ox, oy, count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className   = 'lp';
+      el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      const h = Math.floor(Math.random() * 30 - 10);
+      el.style.filter   = `hue-rotate(${h}deg) saturate(1.4) brightness(.9)`;
+      el.style.fontSize = (9 + Math.random() * 13) + 'px';
+      let px = ox + (Math.random() - .5) * 70;
+      let py = oy + (Math.random() - .5) * 50;
+      el.style.left = px + 'px';
+      el.style.top  = py + 'px';
+      document.body.appendChild(el);
+
+      let vx = 2.5 + Math.random() * 7.5;
+      let vy = -(1.5 + Math.random() * 4.5);
+      let angle = Math.random() * 360;
+      const spin = (Math.random() - .5) * 9;
+      let alpha = 1;
+
+      const step = () => {
+        vx *= .984; vy += .10;
+        px += vx; py += vy; angle += spin; alpha -= .011;
+        if (alpha <= 0) { el.remove(); return; }
+        el.style.left      = px + 'px';
+        el.style.top       = py + 'px';
+        el.style.opacity   = alpha;
+        el.style.transform = `rotate(${angle}deg)`;
+        if (px < window.innerWidth + 140) requestAnimationFrame(step);
+        else el.remove();
+      };
+      requestAnimationFrame(step);
+    }, i * 46);
+  }
+}
+
+/* ══════════════════════════════════════
+   POINTER — mouse + touch
+══════════════════════════════════════ */
+function onMove(cx, cy) {
+  const rect = canvas.getBoundingClientRect();
+  const lx = cx - rect.left;
+  const ly = cy - rect.top;
+  let anyH = false;
+
+  bushes.forEach(bush => {
+    bush.branches.forEach(br => {
+      const ex  = bush.cx + Math.cos(br.angle) * br.len;
+      const ey  = bush.cy + Math.sin(br.angle) * br.len;
+      const mpx = (bush.cx + ex) / 2;
+      const mpy = (bush.cy + ey) / 2;
+      const d   = Math.hypot(lx - mpx, ly - mpy);
+      const inf = Math.max(0, 1 - d / 90);
+
+      if (inf > 0.05) {
+        const pd = Math.atan2(mpy - ly, mpx - lx);
+        const tg = inf * 0.65 * Math.sign(Math.cos(pd - br.baseAngle));
+        br.hBend += (tg - br.hBend) * 0.16;
+        anyH = true;
+      } else {
+        br.hBend *= 0.88;
+      }
+    });
+  });
+
+  anyH ? curEl.classList.add('big') : curEl.classList.remove('big');
+}
+
+canvas.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  onMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+
+/* ── CLICK / TAP ANYWHERE ── */
+function onClick(cx, cy) {
+  triggerWind(.80 + Math.random() * .35);
+  spawnLeaves(cx, cy, 30);
+  bushes.forEach(b => { b.cWave = 1; });
+}
+
+document.addEventListener('click', e => {
+  if (['BUTTON','INPUT'].includes(e.target.tagName)) return;
+  onClick(e.clientX, e.clientY);
+});
+document.addEventListener('touchend', e => {
+  if (['BUTTON','INPUT'].includes(e.target.tagName)) return;
+  const t = e.changedTouches[0];
+  onClick(t.clientX, t.clientY);
+}, { passive: true });
+
+/* ══════════════════════════════════════
+   RENDER LOOP
+══════════════════════════════════════ */
+let tick = 0;
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  wStr += (wTgt - wStr) * 0.038;
+  tick += 0.013;
+
+  // sort back → front by depth
+  const sorted = [...bushes].sort((a, b) => a.depth - b.depth);
+
+  sorted.forEach(bush => {
+    if (bush.cWave > 0) bush.cWave *= 0.91;
+    const baseA     = 0.45 + bush.depth * 0.55;
+    const totalWind = wStr + bush.cWave * 0.92;
+
+    ctx.save();
+    bush.branches.forEach(br => {
+      const sway  = Math.sin(tick * br.speed + br.phase) * 0.048;
+      const wBend = totalWind * br.wFactor * 0.40;
+      br.angle    = br.baseAngle + sway + wBend + br.hBend;
+
+      const ex = bush.cx + Math.cos(br.angle) * br.len;
+      const ey = bush.cy + Math.sin(br.angle) * br.len;
+
+      // stem
+      ctx.beginPath();
+      ctx.moveTo(bush.cx, bush.cy);
+      ctx.lineTo(ex, ey);
+      ctx.strokeStyle = br.color;
+      ctx.lineWidth   = 0.5 + bush.depth * 1.0;
+      ctx.globalAlpha = baseA * 0.80;
+      ctx.stroke();
+
+      // tip dot
+      ctx.beginPath();
+      ctx.arc(ex, ey, br.tipR, 0, Math.PI * 2);
+      ctx.fillStyle   = br.color;
+      ctx.globalAlpha = baseA;
+      ctx.fill();
+    });
+    ctx.restore();
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* ══════════════════════════════════════
+   AMBIENT DRIFTING LEAVES
+══════════════════════════════════════ */
+function ambientLeaf() {
+  const el = document.createElement('div');
+  el.className   = 'lp';
+  el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+  const h = Math.floor(Math.random() * 28 - 8);
+  el.style.filter   = `hue-rotate(${h}deg) saturate(1.25)`;
+  el.style.fontSize = (7 + Math.random() * 10) + 'px';
+  let px = -30;
+  let py = window.innerHeight * .2 + Math.random() * window.innerHeight * .6;
+  el.style.left = px+'px'; el.style.top = py+'px'; el.style.opacity = '0';
+  document.body.appendChild(el);
+
+  const vx = 1.1 + Math.random() * 1.9;
+  const vy = -.2  + Math.random() * .45;
+  const wf = .018 + Math.random() * .02;
+  const sp = (Math.random() - .5) * 2.5;
+  let phase = 0, angle = 0, alpha = 0;
+
+  const go = () => {
+    phase += wf; px += vx; py += vy + Math.sin(phase) * .4; angle += sp;
+    if (px < 180)                      alpha = Math.min(alpha + .025, .75);
+    if (px > window.innerWidth - 180)  alpha = Math.max(alpha - .025, 0);
+    el.style.left = px+'px'; el.style.top = py+'px';
+    el.style.opacity = alpha; el.style.transform = `rotate(${angle}deg)`;
+    if (px < window.innerWidth + 60) requestAnimationFrame(go);
+    else el.remove();
+  };
+  requestAnimationFrame(go);
+}
+setInterval(ambientLeaf, 2300);
+
+/* ══════════════════════════════════════
+   RANDOM GENTLE GUSTS
+══════════════════════════════════════ */
+setInterval(() => {
+  if (Math.random() < 0.28) triggerWind(.18 + Math.random() * .32);
+}, 5800);
+</script>
+</body>
+</html>
